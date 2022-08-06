@@ -28,16 +28,25 @@ showWhatever :: Block -> Block
 showWhatever (Hide x) = Show x
 showWhatever x = x
 
+showX :: [Block] -> Int -> [Block]
+showX (x : xs) 0 = showWhatever x : xs
+showX (x : xs) n = x : showX xs (n - 1)
+showX [] _ = []
+
+showXY :: [[Block]] -> (Int, Int) -> [[Block]]
+showXY (l : ls) (x, 0) = showX l x : ls
+showXY (l : ls) (x, y) = l : showXY ls (x, y - 1)
+showXY [] _ = []
+
 s :: [[Block]] -> [(Int, Int)] -> [[Block]]
 s board [] = board
-s board ((x, y) : hs) = if valid then s newBoard newHs else s board hs
+s board ((x, y) : hs) = s newBoard newHs
   where
     (height, width) = (length board, length (head board))
     this = board !! y !! x
-    valid = validMove this
     isEmpty = this == Hide Empty
-    newBoard = [[if (x, y) == (x', y') then showWhatever this else board !! y' !! x' | x' <- [0 .. width - 1]] | y' <- [0 .. height - 1]]
-    newHs = if isEmpty then [(x, y) | x <- [x - 1, x, x + 1], y <- [y - 1, y, y + 1]] ++ hs else hs
+    newBoard = showXY board (x, y)
+    newHs = if isEmpty then [(x, y) | x <- [x - 1, x, x + 1], y <- [y - 1, y, y + 1], validMove (newBoard !! y !! x), (x, y) `notElem` hs] ++ hs else hs
 
 play :: [[Block]] -> (Int, Int) -> ([[Block]], Bool)
 play board (x, y) = do
