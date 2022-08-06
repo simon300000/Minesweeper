@@ -17,7 +17,7 @@ isHideBomb (Hide _) = False
 isHideBomb _ = True
 
 showBomb :: [[Block]] -> (Int, Int) -> [[Block]]
-showBomb board (x, y) = [[if (x, y) == (x', y') then Show Explode else replace (board !! y' !! x') | x' <- [0 .. width - 1]] | y' <- [0 .. height - 1]]
+showBomb board (x, y) = fXY (map (map replace) board) (x, y) (const (Show Explode))
   where
     (height, width) = (length board, length (head board))
     replace :: Block -> Block
@@ -28,25 +28,26 @@ showWhatever :: Block -> Block
 showWhatever (Hide x) = Show x
 showWhatever x = x
 
-showX :: [Block] -> Int -> [Block]
-showX (x : xs) 0 = showWhatever x : xs
-showX (x : xs) n = x : showX xs (n - 1)
-showX [] _ = []
+fX :: [Block] -> Int -> (Block -> Block) -> [Block]
+fX (x : xs) 0 f = f x : xs
+fX (x : xs) n f = x : fX xs (n - 1) f
+fX [] _ _ = []
 
-showXY :: [[Block]] -> (Int, Int) -> [[Block]]
-showXY (l : ls) (x, 0) = showX l x : ls
-showXY (l : ls) (x, y) = l : showXY ls (x, y - 1)
-showXY [] _ = []
+fXY :: [[Block]] -> (Int, Int) -> (Block -> Block) -> [[Block]]
+fXY (l : ls) (x, 0) f = fX l x f : ls
+fXY (l : ls) (x, y) f = l : fXY ls (x, y - 1) f
+fXY [] _ _ = []
 
 s :: [[Block]] -> [(Int, Int)] -> [[Block]]
 s board [] = board
-s board ((x, y) : hs) = s newBoard newHs
+s board ((x, y) : hs) = if valid then s newBoard newHs else s board hs
   where
     (height, width) = (length board, length (head board))
     this = board !! y !! x
+    valid = validMove this
     isEmpty = this == Hide Empty
-    newBoard = showXY board (x, y)
-    newHs = if isEmpty then [(x, y) | x <- [x - 1, x, x + 1], y <- [y - 1, y, y + 1], validMove (newBoard !! y !! x), (x, y) `notElem` hs] ++ hs else hs
+    newBoard = fXY board (x, y) showWhatever
+    newHs = if isEmpty then [(x, y) | x <- [x - 1, x, x + 1], y <- [y - 1, y, y + 1]] ++ hs else hs
 
 play :: [[Block]] -> (Int, Int) -> ([[Block]], Bool)
 play board (x, y) = do
