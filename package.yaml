@@ -26,7 +26,7 @@ library:
   source-dirs: src
 
 executables:
-  minesweeper-exe:
+  minesweeper:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
