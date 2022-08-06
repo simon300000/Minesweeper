@@ -10,8 +10,8 @@ render w = unlines board
     board = widthIndex : zipWith (++) heightIndex lines
     height = length w - 2
     width = length (head w) - 2
-    heightIndex = map show [0 .. height - 1]
-    widthIndex = concatMap ((" " ++) . show) [0 .. width - 1]
+    heightIndex = map (\i -> if i < 10 then show i ++ " " else show i) [0 .. height - 1]
+    widthIndex = "  " ++ concatMap (\i -> if i < 10 then show i ++ " " else show i) [0 .. width - 1]
 
 renderBlock :: Block -> String
 renderBlock Edge = ""
@@ -22,11 +22,11 @@ renderBlock (Show Empty) = "⬜"
 renderBlock (Show (Number n)) = renderNumber n
 
 renderNumber :: Number -> String
-renderNumber One = "1⃣️"
-renderNumber Two = "2⃣️"
-renderNumber Three = "3⃣️"
-renderNumber Four = "4⃣️"
-renderNumber Five = "5⃣️"
-renderNumber Six = "6⃣️"
-renderNumber Seven = "7⃣️"
-renderNumber Eight = "8⃣️"
+renderNumber One = " 1"
+renderNumber Two = " 2"
+renderNumber Three = " 3"
+renderNumber Four = " 4"
+renderNumber Five = " 5"
+renderNumber Six = " 6"
+renderNumber Seven = " 7"
+renderNumber Eight = " 8"
