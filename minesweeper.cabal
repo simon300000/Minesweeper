@@ -25,7 +25,10 @@ source-repository head
 
 library
   exposed-modules:
+      Generator
       Lib
+      Render
+      Type
   other-modules:
       Paths_minesweeper
   hs-source-dirs:
